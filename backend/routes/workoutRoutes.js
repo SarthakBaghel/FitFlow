@@ -1,71 +1,57 @@
 const express = require("express");
-
 require("dotenv").config();
 
 const router = express.Router();
-
-// 🔑 API Ninjas key from .env
 const API_KEY = process.env.X_API_KEY;
 
-// Map workout “types” to muscle groups
-const typeToMuscleMap = {
-  push: ["chest", "shoulders", "triceps"],
-  pull: ["back", "biceps"],
-  legs: ["quadriceps", "hamstrings", "glutes", "calves"],
-  core: ["abdominals", "lower_back"],
-  fullbody: ["chest", "back", "legs", "shoulders", "arms"],
-};
-
-// ✅ GET /api/exercises?type=push&difficulty=beginner&equipment=dumbbell&limit=5
+// ✅ GET /api/exercises?muscle=biceps&type=strength&difficulty=beginner&name=press&limit=10
 router.get("/", async (req, res) => {
-  const type = req.query.type?.toLowerCase() || "push";
-  const difficulty = req.query.difficulty?.toLowerCase() || "";
-  const equipment = req.query.equipment?.toLowerCase() || "";
-  const limit = parseInt(req.query.limit) || 10;
-
-  // Resolve to relevant muscle groups
-  const muscles = typeToMuscleMap[type] || ["chest"];
-
   try {
-    // 1️⃣ Fetch exercises for each muscle
-    const allData = await Promise.all(
-      muscles.map(async (muscle) => {
-        const url = `https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`;
-        const resp = await fetch(url, {
-          headers: { "X-Api-Key": API_KEY },
-        });
+    // Extract query params
+    const muscle = req.query.muscle?.toLowerCase() || "chest";
+    const difficulty = req.query.difficulty?.toLowerCase() || "beginner";
+    const exerciseType = req.query.type?.toLowerCase() || "strength"; // exercise type (e.g. strength, cardio)
+    const name = req.query.name?.toLowerCase() || ""; // search by name substring
+    const equipment = req.query.equipment?.toLowerCase() || "cable";
+    const limit = parseInt(req.query.limit) || 10;
 
-        if (!resp.ok) {
-          console.error(`❌ API Ninjas error for muscle=${muscle}: ${resp.status}`);
-          return [];
-        }
+    // 🔧 Build dynamic URL
+    const params = new URLSearchParams();
+    if (muscle) params.append("muscle", muscle);
+    if (difficulty) params.append("difficulty", difficulty);
+    if (exerciseType) params.append("type", exerciseType);
+    if (name) params.append("name", name);
+    if (equipment) params.append("equipment", equipment);
 
-        const data = await resp.json();
-        return Array.isArray(data) ? data : [];
-      })
-    );
+    const apiUrl = `https://api.api-ninjas.com/v1/exercises?${params.toString()}`;
+    console.log(`🔍 Fetching: ${apiUrl}`);
 
-    // 2️⃣ Flatten results
-    let merged = allData.flat();
+    // 🌐 Fetch from API Ninjas
+    const response = await fetch(apiUrl, {
+      headers: { "X-Api-Key": API_KEY },
+    });
 
-    // 3️⃣ Locally filter by difficulty and equipment
-    if (difficulty)
-      merged = merged.filter((ex) => ex.difficulty?.toLowerCase() === difficulty);
-    if (equipment)
-      merged = merged.filter((ex) => ex.equipment?.toLowerCase() === equipment);
-
-    if (merged.length === 0) {
-      return res.status(404).json({
-        message: "No exercises found after applying filters.",
-        filters_used: { type, difficulty, equipment },
-      });
+    if (!response.ok) {
+      console.error(`❌ API Ninjas error: ${response.status}`);
+      return res
+        .status(response.status)
+        .json({ error: `API error: ${response.statusText}` });
     }
 
-    // 4️⃣ Randomize and limit
-    const selected = merged.sort(() => 0.5 - Math.random()).slice(0, limit);
+    const data = await response.json();
 
-    // 5️⃣ Clean results (only real API fields)
-    const cleanResults = selected.map((ex) => ({
+    // 🧠 Apply local fallback filtering
+    let filtered = Array.isArray(data) ? data : [];
+    if (equipment)
+      filtered = filtered.filter(
+        (ex) => ex.equipment?.toLowerCase() === equipment
+      );
+
+    // 🌀 Shuffle and limit
+    const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
+
+    // 🧹 Clean results
+    const cleanResults = shuffled.map((ex) => ({
       name: ex.name,
       type: ex.type,
       muscle: ex.muscle,
@@ -74,15 +60,18 @@ router.get("/", async (req, res) => {
       instructions: ex.instructions,
     }));
 
-    // 6️⃣ Send structured response
+    // ✅ Send structured response
     res.json({
-      filters_used: { type, difficulty, equipment },
+      filters_used: { muscle, difficulty, type: exerciseType, equipment, name },
       total_results: cleanResults.length,
       exercises: cleanResults,
     });
   } catch (error) {
     console.error("❌ Error fetching from API Ninjas:", error);
-    res.status(500).json({ error: "Failed to fetch exercises from API Ninjas." });
+    res.status(500).json({
+      error: "Failed to fetch exercises from API Ninjas.",
+      details: error.message,
+    });
   }
 });
 
