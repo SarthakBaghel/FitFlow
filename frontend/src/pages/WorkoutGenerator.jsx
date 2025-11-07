@@ -4,36 +4,32 @@ import Loader from "../components/Loader";
 
 export default function WorkoutGenerator() {
   const [type, setType] = useState("push");
+  const [difficulty, setDifficulty] = useState("beginner");
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Helper to generate random reps/sets
-  const getRandomPlan = () => {
-    const sets = Math.floor(Math.random() * 3) + 3; // 3–5 sets
-    const reps = Math.floor(Math.random() * 6) + 8; // 8–14 reps
-    return { sets, reps };
-  };
-
   const loadWorkouts = async () => {
     setLoading(true);
-    const data = await fetchWorkouts(type);
-    const enriched = data.map((ex) => ({
-      ...ex,
-      plan: getRandomPlan(),
-    }));
-    setWorkouts(enriched);
-    setLoading(false);
+    try {
+      const data = await fetchWorkouts(type, difficulty); // API call from /services/api.js
+      setWorkouts(data?.exercises || []);
+    } catch (err) {
+      console.error("Failed to load workouts:", err);
+      setWorkouts([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadWorkouts();
-  }, [type]);
+  }, [type, difficulty]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-blue-950 to-black text-white py-12 px-6">
       {/* Page Title */}
       <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-8">
-        🏋️ Your {type.charAt(0).toUpperCase() + type.slice(1)} Workout Plan
+        🏋️ {type.charAt(0).toUpperCase() + type.slice(1)} Workout Plan
       </h1>
 
       {/* Controls */}
@@ -50,6 +46,16 @@ export default function WorkoutGenerator() {
           <option value="fullbody">Full Body</option>
         </select>
 
+        <select
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}
+          className="px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition"
+        >
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="expert">Expert</option>
+        </select>
+
         <button
           onClick={loadWorkouts}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-lg"
@@ -62,15 +68,17 @@ export default function WorkoutGenerator() {
       {loading ? (
         <Loader />
       ) : workouts.length > 0 ? (
-        <div className="max-w-3xl mx-auto bg-gray-900 bg-opacity-60 rounded-xl shadow-lg p-6 divide-y divide-gray-700">
+        <div className="max-w-4xl mx-auto bg-gray-900 bg-opacity-60 rounded-xl shadow-lg p-6 divide-y divide-gray-700">
           {workouts.map((ex, idx) => (
             <div
-              key={ex.id}
-              className="flex flex-col sm:flex-row items-center gap-6 py-6 hover:bg-gray-800 rounded-lg transition"
+              key={`${ex.name}-${idx}`}
+              className="flex flex-col sm:flex-row items-start gap-6 py-6 hover:bg-gray-800 rounded-lg transition"
             >
-              {/* Exercise Image */}
+              {/* Placeholder Image (API Ninjas has no images) */}
               <img
-                src={ex.image || "https://via.placeholder.com/100x100?text=No+Image"}
+                src={`https://via.placeholder.com/100x100.png?text=${encodeURIComponent(
+                  ex.muscle || "Workout"
+                )}`}
                 alt={ex.name}
                 className="w-24 h-24 object-cover rounded-lg border border-gray-700"
               />
@@ -80,22 +88,18 @@ export default function WorkoutGenerator() {
                 <h3 className="text-xl font-semibold text-blue-400 mb-1">
                   {idx + 1}. {ex.name}
                 </h3>
-                <p
-                  className="text-gray-300 text-sm mb-2"
-                  dangerouslySetInnerHTML={{
-                    __html: ex.description
-                      ? ex.description.slice(0, 120) + "..."
-                      : "No description available",
-                  }}
-                />
+
+                <p className="text-gray-300 text-sm mb-2">
+                  {ex.instructions
+                    ? ex.instructions.slice(0, 150) + "..."
+                    : "No instructions available."}
+                </p>
+
                 <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-400">
-                  <p>
-                    🔁 <span className="font-semibold text-gray-200">{ex.plan.sets}</span> sets
-                  </p>
-                  <p>
-                    💪 <span className="font-semibold text-gray-200">{ex.plan.reps}</span> reps
-                  </p>
-                  <p>🏋️ Type: {type.toUpperCase()}</p>
+                  <p>🏋️ Type: {ex.type || "N/A"}</p>
+                  <p>💪 Muscle: {ex.muscle || "N/A"}</p>
+                  <p>🎯 Difficulty: {ex.difficulty || "N/A"}</p>
+                  <p>🧰 Equipment: {ex.equipment || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -103,7 +107,7 @@ export default function WorkoutGenerator() {
         </div>
       ) : (
         <p className="text-center text-gray-400 text-lg mt-10">
-          No workouts found for this type. Try another plan!
+          No workouts found for this combination. Try different options!
         </p>
       )}
     </div>
