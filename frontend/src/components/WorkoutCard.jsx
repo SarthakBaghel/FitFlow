@@ -1,28 +1,57 @@
-export default function WorkoutCard({ name, image, description }) {
+import { motion } from "framer-motion";
+
+export default function WorkoutCard({ name, type, muscle, equipment, difficulty, instructions, index }) {
   return (
-    <div className="bg-white shadow-lg rounded-xl p-4 w-72 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between">
-      <h3 className="text-xl font-semibold text-gray-800 mb-3 text-center">
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 50 },
+        visible: { opacity: 1, y: 0 },
+      }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700/50 rounded-2xl p-6 shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] backdrop-blur-md"
+    >
+      <h3 className="text-xl sm:text-2xl font-bold text-blue-400 mb-3 tracking-wide">
         {name}
       </h3>
 
-      {image ? (
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-48 object-cover rounded-lg mb-4 border border-gray-200"
-        />
-      ) : (
-        <div className="w-full h-48 flex items-center justify-center bg-gray-200 text-gray-500 rounded-lg mb-4 border border-gray-300">
-          No Image Available
-        </div>
-      )}
+      <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-5">
+        {instructions
+          ? instructions.length > 350
+            ? instructions.slice(0, 350) + "..."
+            : instructions
+          : "No instructions available for this exercise."}
+      </p>
 
-      <div
-        className="text-sm text-gray-600 leading-relaxed"
-        dangerouslySetInnerHTML={{
-          __html: description || "No description available",
-        }}
-      />
-    </div>
+      <div className="flex flex-wrap gap-3 text-xs font-medium">
+        {type && (
+          <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-md text-gray-300">
+            🏷️ {type}
+          </span>
+        )}
+        {muscle && (
+          <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-md text-gray-300">
+            💪 {muscle}
+          </span>
+        )}
+        {equipment && (
+          <span className="px-3 py-1 bg-gray-700/50 border border-gray-600 rounded-md text-gray-300">
+            ⚙️ {equipment}
+          </span>
+        )}
+        {difficulty && (
+          <span
+            className={`px-3 py-1 rounded-md border ${
+              difficulty === "beginner"
+                ? "bg-green-700/40 border-green-600 text-green-300"
+                : difficulty === "intermediate"
+                ? "bg-yellow-700/40 border-yellow-600 text-yellow-300"
+                : "bg-red-700/40 border-red-600 text-red-300"
+            }`}
+          >
+            🎯 {difficulty}
+          </span>
+        )}
+      </div>
+    </motion.div>
   );
 }
