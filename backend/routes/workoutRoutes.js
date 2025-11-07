@@ -8,11 +8,11 @@ const API_KEY = process.env.X_API_KEY;
 router.get("/", async (req, res) => {
   try {
     // Extract query params
-    const muscle = req.query.muscle?.toLowerCase() || "chest";
-    const difficulty = req.query.difficulty?.toLowerCase() || "beginner";
-    const exerciseType = req.query.type?.toLowerCase() || "strength"; // exercise type (e.g. strength, cardio)
+    const muscle = req.query.muscle?.toLowerCase() || "";
+    const difficulty = req.query.difficulty?.toLowerCase() || "";
+    const exerciseType = req.query.type?.toLowerCase() || ""; // exercise type (e.g. strength, cardio)
     const name = req.query.name?.toLowerCase() || ""; // search by name substring
-    const equipment = req.query.equipment?.toLowerCase() || "cable";
+    const equipment = req.query.equipment?.toLowerCase() || "";
     const limit = parseInt(req.query.limit) || 10;
 
     // 🔧 Build dynamic URL

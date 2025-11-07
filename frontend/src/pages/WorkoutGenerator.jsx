@@ -8,7 +8,7 @@ export default function WorkoutGenerator() {
   const [muscle, setMuscle] = useState("chest");
   const [difficulty, setDifficulty] = useState("beginner");
   const [exerciseType, setExerciseType] = useState("strength");
-  const [equipment, setEquipment] = useState("");
+  const [equipment, setEquipment] = useState("any");
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
