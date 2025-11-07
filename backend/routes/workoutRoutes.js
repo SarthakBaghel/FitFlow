@@ -18,6 +18,8 @@ router.get("/", async (req, res) => {
     const response = await fetch("https://wger.de/api/v2/exercise/?language=2&limit=200");
     const data = await response.json();
 
+    console.log(data);
+
     const filtered = data.results.filter(ex => categories.includes(ex.category));
 
     // Shuffle for random selection
