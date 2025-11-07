@@ -1,0 +1,85 @@
+# ==============================
+# 🌐 GLOBAL SETTINGS
+# ==============================
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==============================
+# 🖥️ BACKEND (Express)
+# ==============================
+
+backend/node_modules/
+backend/package-lock.json
+
+# Compiled files
+backend/dist/
+backend/build/
+
+# Optional runtime files
+backend/.cache/
+backend/tmp/
+
+# ==============================
+# ⚛️ FRONTEND (React)
+# ==============================
+
+frontend/node_modules/
+frontend/package-lock.json
+
+# React build output
+frontend/build/
+frontend/.env
+frontend/.cache/
+
+# ==============================
+# 🧰 MISC
+# ==============================
+
+# Coverage (testing)
+coverage/
+.nyc_output/
+
+# Local development data
+*.local
+*.bak
+*.tmp
+
+# macOS metadata
+._*
+
+# npm / yarn
+yarn.lock
+pnpm-lock.yaml
+
+# ==============================
+# 📦 DEPLOYMENT
+# ==============================
+
+# Vercel / Netlify / Render
+.vercel/
+.netlify/
+render.yaml
