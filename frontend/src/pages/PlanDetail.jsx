@@ -99,8 +99,17 @@ export default function PlanDetail() {
         {/* DAY INFO */}
         <div className="mb-8">
           <h2 className="text-lg text-gray-300 font-semibold">Day</h2>
-          <p className="text-gray-200 mt-1 text-lg">
-            {day?.dateLabel || "Day 1"}
+
+          <p className="text-gray-200 mt-1 text-2xl font-bold">
+            {new Date(day?.dateLabel || plan.createdAt).toLocaleDateString("en-US", {
+              weekday: "long",
+            })}
+          </p>
+
+          <p className="text-gray-500 text-sm mt-1">
+            {day?.dateLabel
+              ? new Date(day.dateLabel).toLocaleDateString()
+              : new Date(plan.createdAt).toLocaleDateString()}
           </p>
         </div>
 
@@ -149,7 +158,7 @@ export default function PlanDetail() {
           </button>
 
           <button
-            onClick={() => navigate("/my-plans")}
+            onClick={() => navigate("/myplans")}
             className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
           >
             View All Plans

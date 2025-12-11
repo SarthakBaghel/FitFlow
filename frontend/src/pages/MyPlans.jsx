@@ -69,7 +69,7 @@ export default function MyPlans() {
           <h1 className="text-3xl font-bold">My Plans</h1>
 
           <button
-            onClick={() => navigate("/workout-generator")}
+            onClick={() => navigate("/workouts")}
             className="px-4 py-2 rounded bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow"
           >
             Generate New Plan
@@ -82,10 +82,10 @@ export default function MyPlans() {
             <p className="text-gray-300">You don’t have any saved plans yet.</p>
 
             <Link
-              to="/workout-generator"
+              to="/workouts"
               className="mt-4 inline-block px-5 py-2 rounded bg-blue-600 text-white"
             >
-              Generate one now
+              Generate New
             </Link>
           </div>
         )}
