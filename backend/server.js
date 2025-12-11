@@ -18,6 +18,7 @@ if (!process.env.JWT_SECRET) {
 const workoutRoutes = require("./routes/workoutRoutes");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
+const planRoutes = require("./routes/plans");
 
 // Middleware
 app.use(cors());
@@ -38,6 +39,7 @@ if (MONGO_URI) {
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/plans", planRoutes);
 
 app.get("/", (req, res) => {
   res.send("🏋️‍♂️ Workout API is running");

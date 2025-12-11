@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchWorkouts } from "../services/api";
+import { createPlan } from "../services/plans"; // <-- added
 import WorkoutCard from "../components/WorkoutCard";
 import Loader from "../components/Loader";
 import { motion } from "framer-motion";
@@ -12,6 +13,10 @@ export default function WorkoutGenerator() {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // new: saving + save message state
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   const loadWorkouts = async () => {
     setLoading(true);
@@ -37,6 +42,64 @@ export default function WorkoutGenerator() {
   useEffect(() => {
     loadWorkouts();
   }, [muscle, difficulty, exerciseType, equipment]);
+
+  // -----------------------
+  // Save plan handler
+  // -----------------------
+  const handleSavePlan = async () => {
+    if (!workouts || workouts.length === 0) {
+      setSaveMessage("No workouts to save.");
+      setTimeout(() => setSaveMessage(""), 3000);
+      return;
+    }
+
+    setSaving(true);
+    setSaveMessage("");
+
+    const todayLabel = new Date().toLocaleDateString();
+
+    const day = {
+      dateLabel: todayLabel,
+      exercises: workouts.map((w) => ({
+        name: w.name,
+        type: w.type,
+        muscle: w.muscle,
+        equipment: w.equipment,
+        difficulty: w.difficulty,
+        instructions: w.instructions,
+        sets: w.sets ?? undefined,
+        reps: w.reps ?? undefined,
+      })),
+      completed: false,
+      completedAt: null,
+    };
+
+    const payload = {
+      title: `${muscle ? muscle.charAt(0).toUpperCase() + muscle.slice(1) : "Generated"} - ${todayLabel}`,
+      description: `Auto-saved plan generated from Workout Generator (target: ${muscle || "any"})`,
+      days: [day],
+      meta: {
+        goal: null,
+        difficulty: difficulty || null,
+        equipment: equipment ? [equipment] : [],
+      },
+    };
+
+    try {
+      // createPlan should call POST /api/plans and return the created plan
+      const created = await createPlan(payload);
+      setSaveMessage("Plan saved successfully.");
+      // optionally you could navigate to plan detail if you add navigation:
+      // navigate(`/plans/${created._id}`)
+    } catch (err) {
+      console.error("Save plan failed", err);
+      setSaveMessage(err?.response?.data?.message || "Failed to save plan. Try again.");
+    } finally {
+      setSaving(false);
+      // auto-clear message after short time
+      setTimeout(() => setSaveMessage(""), 3500);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-blue-950 to-black text-white py-12 px-6">
@@ -160,6 +223,26 @@ export default function WorkoutGenerator() {
             >
               Generate New Plan 🔁
             </button>
+
+            {/* Save Plan Button (new) */}
+            <button
+              onClick={handleSavePlan}
+              disabled={saving || workouts.length === 0}
+              className={`mt-3 w-full py-3 rounded-lg text-lg font-semibold transition transform hover:scale-102 shadow-lg ${
+                workouts.length === 0
+                  ? "bg-gray-700 text-gray-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+              }`}
+            >
+              {saving ? "Saving..." : "Save Plan"}
+            </button>
+
+            {/* Save message */}
+            {saveMessage && (
+              <div className="text-center mt-3 text-sm text-gray-200">
+                {saveMessage}
+              </div>
+            )}
           </div>
         </motion.div>
 
