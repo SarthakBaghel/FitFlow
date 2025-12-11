@@ -39,8 +39,12 @@ router.post("/plans", auth, async (req, res) => {
 
 // GET /api/user/plans
 router.get("/plans", auth, async (req, res) => {
-  const user = await User.findById(req.user._1d).select("savedPlans");
-  res.json({ savedPlans: user.savedPlans });
+  try {
+    const user = await User.findById(req.user._id).select("savedPlans");
+    res.json({ savedPlans: user.savedPlans });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;

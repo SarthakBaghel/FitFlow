@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     const difficulty = req.query.difficulty?.toLowerCase() || "";
     const exerciseType = req.query.type?.toLowerCase() || ""; // exercise type (e.g. strength, cardio)
     const name = req.query.name?.toLowerCase() || ""; // search by name substring
-    const equipment = req.query.equipment?.toLowerCase() || "";
+    // const equipment = req.query.equipment?.toLowerCase() || "";
     const limit = parseInt(req.query.limit) || 10;
 
     // 🔧 Build dynamic URL
@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
     if (difficulty) params.append("difficulty", difficulty);
     if (exerciseType) params.append("type", exerciseType);
     if (name) params.append("name", name);
-    if (equipment) params.append("equipment", equipment);
+    // if (equipment) params.append("equipment", equipment);
 
     const apiUrl = `https://api.api-ninjas.com/v1/exercises?${params.toString()}`;
     console.log(`🔍 Fetching: ${apiUrl}`);
@@ -32,20 +32,30 @@ router.get("/", async (req, res) => {
     });
 
     if (!response.ok) {
-      console.error(`❌ API Ninjas error: ${response.status}`);
-      return res
-        .status(response.status)
-        .json({ error: `API error: ${response.statusText}` });
+      const bodyText = await response.text();
+      let providerMsg = null;
+      try {
+        const parsed = JSON.parse(bodyText);
+        providerMsg = parsed.error || parsed.message || null;
+      } catch (e) {
+        providerMsg = bodyText;
+      }
+      console.error(`❌ API Ninjas error: ${response.status}`, providerMsg);
+      return res.status(response.status).json({
+        error: `API error: ${response.statusText}`,
+        provider_message: providerMsg,
+        raw: bodyText,
+      });
     }
 
     const data = await response.json();
 
     // 🧠 Apply local fallback filtering
     let filtered = Array.isArray(data) ? data : [];
-    if (equipment)
-      filtered = filtered.filter(
-        (ex) => ex.equipment?.toLowerCase() === equipment
-      );
+    // if (equipment)
+    //   filtered = filtered.filter(
+    //     (ex) => ex.equipment?.toLowerCase() === equipment
+    //   );
 
     // 🌀 Shuffle and limit
     const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
@@ -55,14 +65,14 @@ router.get("/", async (req, res) => {
       name: ex.name,
       type: ex.type,
       muscle: ex.muscle,
-      equipment: ex.equipment,
+      // equipment: ex.equipment,
       difficulty: ex.difficulty,
       instructions: ex.instructions,
     }));
 
     // ✅ Send structured response
     res.json({
-      filters_used: { muscle, difficulty, type: exerciseType, equipment, name },
+      filters_used: { muscle, difficulty, type: exerciseType, name },
       total_results: cleanResults.length,
       exercises: cleanResults,
     });

@@ -104,6 +104,7 @@ export default function WorkoutGenerator() {
                 <option value="middle_back">Middle Back</option>
                 <option value="neck">Neck</option>
                 <option value="quadriceps">Quadriceps</option>
+                <option value="shoulder">Shoulder</option>
                 <option value="traps">Traps</option>
                 <option value="triceps">Triceps</option>
               </select>
@@ -127,7 +128,7 @@ export default function WorkoutGenerator() {
             </div>
 
             {/* Equipment */}
-            <div>
+            {/* <div>
               <label className="block mb-2 text-gray-300 font-semibold">
                 Equipment
               </label>
@@ -150,7 +151,7 @@ export default function WorkoutGenerator() {
                 <option value="exercise_ball">Exercise Ball</option>
                 <option value="other">Other</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Generate Button */}
             <button
