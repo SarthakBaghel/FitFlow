@@ -4,6 +4,17 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 
+// Ensure JWT secret is present in production, provide a clear dev fallback otherwise
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === "production") {
+    console.error("FATAL: JWT_SECRET is not set. Set JWT_SECRET in your environment or .env file.");
+    process.exit(1);
+  } else {
+    console.warn("⚠️  JWT_SECRET is not set. Using temporary development secret. Set JWT_SECRET in .env for real deployments.");
+    process.env.JWT_SECRET = "dev-secret";
+  }
+}
+
 const workoutRoutes = require("./routes/workoutRoutes");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");

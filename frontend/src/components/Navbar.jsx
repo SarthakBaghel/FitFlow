@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { logout as logoutUser } from "../services/authService";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -8,10 +9,13 @@ export default function Navbar() {
 
   useEffect(() => {
     setLoggedIn(!!localStorage.getItem("token"));
+    const onAuthChange = () => setLoggedIn(!!localStorage.getItem("token"));
+    window.addEventListener("authChange", onAuthChange);
+    return () => window.removeEventListener("authChange", onAuthChange);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logoutUser();
     setLoggedIn(false);
     navigate("/login");
   };

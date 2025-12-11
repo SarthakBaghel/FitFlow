@@ -2,18 +2,25 @@ import api from "./api";
 
 export const registerUser = async (payload) => {
   const res = await api.post("/auth/register", payload);
-  if (res.data?.token) localStorage.setItem("token", res.data.token);
+  if (res.data?.token) {
+    localStorage.setItem("token", res.data.token);
+    try { window.dispatchEvent(new Event('authChange')); } catch (e) {}
+  }
   return res.data;
 };
 
 export const loginUser = async (payload) => {
   const res = await api.post("/auth/login", payload);
-  if (res.data?.token) localStorage.setItem("token", res.data.token);
+  if (res.data?.token) {
+    localStorage.setItem("token", res.data.token);
+    try { window.dispatchEvent(new Event('authChange')); } catch (e) {}
+  }
   return res.data;
 };
 
 export const logoutUser = () => {
   localStorage.removeItem("token");
+  try { window.dispatchEvent(new Event('authChange')); } catch (e) {}
 };
 
 export const fetchCurrentUser = async () => {
