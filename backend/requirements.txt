@@ -1,0 +1,31 @@
+# Backend Dependencies for Workout Planner
+# This is an npm package list (Node.js project)
+# Install with: npm install
+
+# Core Framework
+express@^5.1.0
+
+# Database
+mongoose@^7.5.0
+
+# Authentication & Security
+bcrypt@^6.0.0
+jsonwebtoken@^9.0.3
+
+# Middleware & Utilities
+cors@^2.8.5
+dotenv@^17.2.3
+express-validator@^7.3.1
+
+# HTTP Client
+axios@^1.13.2
+node-fetch@^3.3.2
+
+# Development
+nodemon@^3.1.10
+
+# Environment Variables Required
+# JWT_SECRET - Secret key for signing JWT tokens
+# MONGO_URI - MongoDB connection string (e.g., mongodb://localhost:27017/fitflowdb)
+# X_API_KEY - API Ninjas key for exercise data
+# PORT - Server port (default: 8000)
