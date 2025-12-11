@@ -9,6 +9,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyPlans from "./pages/MyPlans";
+import PlanDetail from "./pages/PlanDetail";
 
 
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/workouts" element={<WorkoutGenerator />} />
           <Route path="/about" element={<About />} />
           <Route path="/myplans" element={<MyPlans />} />
+          <Route path="/plans/:id" element={<PlanDetail />} />
         </Route>
 
 
