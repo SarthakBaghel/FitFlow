@@ -38,9 +38,23 @@ export default function PlanDetail() {
     return <p className="text-center text-red-400 mt-10">Plan not found.</p>;
   }
 
-  const day = plan.days?.[0];
-  const exercises = day?.exercises || [];
-  const targetMuscles = [...new Set(exercises.map((ex) => ex.muscle))];
+  const day = plan.days?.[0] || {};
+  const exercises = day.exercises || [];
+  const targetMuscles = [...new Set(exercises.map((ex) => ex.muscle).filter(Boolean))];
+
+  // ✅ SAFE DATE HANDLING
+  const dateISO = day.date || plan.createdAt || null;
+  const dateObj = dateISO ? new Date(dateISO) : null;
+
+  const weekday =
+    dateObj && !isNaN(dateObj)
+      ? dateObj.toLocaleDateString("en-US", { weekday: "long" })
+      : "—";
+
+  const friendlyDate =
+    dateObj && !isNaN(dateObj)
+      ? dateObj.toLocaleDateString()
+      : day.dateLabel || "—";
 
   const handleDelete = async () => {
     if (!window.confirm("Delete this plan?")) return;
@@ -71,14 +85,19 @@ export default function PlanDetail() {
         {/* Title */}
         <h1 className="text-4xl font-bold text-blue-300">{plan.title}</h1>
         <p className="text-gray-400 text-sm mt-1">
-          Created: {new Date(plan.createdAt).toLocaleDateString()}
+          Created:{" "}
+          {dateObj && !isNaN(dateObj)
+            ? dateObj.toLocaleDateString()
+            : "—"}
         </p>
 
         <div className="h-px bg-gray-700/50 my-6"></div>
 
         {/* TARGET MUSCLES */}
         <div className="mb-8">
-          <h2 className="text-lg text-gray-300 font-semibold">Target Muscles</h2>
+          <h2 className="text-lg text-gray-300 font-semibold">
+            Target Muscles
+          </h2>
 
           {targetMuscles.length > 0 ? (
             <div className="flex flex-wrap gap-2 mt-2">
@@ -101,15 +120,11 @@ export default function PlanDetail() {
           <h2 className="text-lg text-gray-300 font-semibold">Day</h2>
 
           <p className="text-gray-200 mt-1 text-2xl font-bold">
-            {new Date(day?.dateLabel || plan.createdAt).toLocaleDateString("en-US", {
-              weekday: "long",
-            })}
+            {weekday}
           </p>
 
           <p className="text-gray-500 text-sm mt-1">
-            {day?.dateLabel
-              ? new Date(day.dateLabel).toLocaleDateString()
-              : new Date(plan.createdAt).toLocaleDateString()}
+            {friendlyDate}
           </p>
         </div>
 
@@ -158,7 +173,7 @@ export default function PlanDetail() {
           </button>
 
           <button
-            onClick={() => navigate("/myplans")}
+            onClick={() => navigate("/my-plans")}
             className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
           >
             View All Plans
