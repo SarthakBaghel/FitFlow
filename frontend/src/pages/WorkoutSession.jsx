@@ -27,7 +27,6 @@ export default function WorkoutSession() {
     const totalSeconds = settings.sessionLength * 60;
     const restTime = settings.rest;
 
-    // reserve rest time
     const totalRestTime = restTime * workouts.length;
     const usableExerciseTime = Math.max(
       totalSeconds - totalRestTime,
@@ -45,6 +44,7 @@ export default function WorkoutSession() {
         type: "exercise",
         name: w.name,
         muscle: w.muscle,
+        instructions: w.instructions,
         duration: exerciseDuration,
         reps: settings.reps,
       });
@@ -75,7 +75,6 @@ export default function WorkoutSession() {
     handleStepComplete
   );
 
-  // Reset timer on step change
   useEffect(() => {
     if (currentStep) {
       setTime(currentStep.duration);
@@ -84,12 +83,8 @@ export default function WorkoutSession() {
     }
   }, [stepIndex]);
 
-  // -----------------------
-  // Step completion
-  // -----------------------
   function handleStepComplete() {
     playCue();
-
     if (stepIndex + 1 < timeline.length) {
       setStepIndex((i) => i + 1);
     } else {
@@ -97,21 +92,13 @@ export default function WorkoutSession() {
     }
   }
 
-  // -----------------------
-  // Sound + vibration
-  // -----------------------
   function playCue() {
     try {
-      const audio = new Audio("/beep.mp3");
-      audio.play();
+      new Audio("/beep.mp3").play();
     } catch {}
-
     if (navigator.vibrate) navigator.vibrate(200);
   }
 
-  // -----------------------
-  // Helpers
-  // -----------------------
   function formatTime(sec) {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
@@ -124,54 +111,77 @@ export default function WorkoutSession() {
   // Render
   // -----------------------
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white flex flex-col items-center justify-center px-6">
-      <h1 className="text-4xl font-bold mb-6">🏋️ Workout Session</h1>
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white px-6 py-10">
+      <h1 className="text-4xl font-bold text-center mb-10">
+        🏋️ Workout Session
+      </h1>
 
       {!isFinished ? (
-        <div className="w-full max-w-md bg-gray-800 rounded-2xl p-8 shadow-xl text-center">
-          <p className="text-sm text-gray-400 mb-2 uppercase tracking-wide">
-            {currentStep.type === "exercise" ? "Exercise" : "Rest"}
-          </p>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-          <h2 className="text-2xl font-semibold mb-1">
-            {currentStep.name}
-          </h2>
-
-          {currentStep.type === "exercise" && (
-            <p className="text-gray-400 mb-4">
-              {currentStep.reps} reps • {currentStep.muscle}
+          {/* LEFT: TIMER */}
+          <div className="bg-gray-800 rounded-2xl p-8 shadow-xl text-center">
+            <p className="text-sm text-gray-400 mb-2 uppercase tracking-wide">
+              {currentStep.type === "exercise" ? "Exercise" : "Rest"}
             </p>
+
+            <h2 className="text-3xl font-semibold mb-2">
+              {currentStep.name}
+            </h2>
+
+            {currentStep.type === "exercise" && (
+              <p className="text-gray-400 mb-4">
+                {currentStep.reps} reps • {currentStep.muscle}
+              </p>
+            )}
+
+            <div className="text-6xl font-bold mb-8">
+              {formatTime(time)}
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setRunning((r) => !r)}
+                className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700"
+              >
+                {running ? "Pause" : "Resume"}
+              </button>
+
+              <button
+                onClick={handleStepComplete}
+                className="px-5 py-2 rounded-lg bg-orange-600 hover:bg-orange-700"
+              >
+                Skip
+              </button>
+            </div>
+
+            <p className="mt-6 text-gray-400 text-sm">
+              Step {stepIndex + 1} / {timeline.length}
+            </p>
+          </div>
+
+          {/* RIGHT: WORKOUT DETAILS */}
+          {currentStep.type === "exercise" && (
+            <div className="bg-gray-800 rounded-2xl p-8 shadow-xl">
+              <h3 className="text-2xl font-bold mb-3">
+                {currentStep.name}
+              </h3>
+
+              <p className="text-sm text-gray-400 mb-4 capitalize">
+                Target Muscle: {currentStep.muscle}
+              </p>
+
+              <div className="max-h-[300px] overflow-y-auto pr-2 text-gray-300 text-sm leading-relaxed">
+                {currentStep.instructions || "No instructions available."}
+              </div>
+            </div>
           )}
-
-          <div className="text-6xl font-bold mb-6">
-            {formatTime(time)}
-          </div>
-
-          {/* Controls */}
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => setRunning((r) => !r)}
-              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700"
-            >
-              {running ? "Pause" : "Resume"}
-            </button>
-
-            <button
-              onClick={handleStepComplete}
-              className="px-5 py-2 rounded-lg bg-orange-600 hover:bg-orange-700"
-            >
-              Skip
-            </button>
-          </div>
-
-          {/* Progress */}
-          <p className="mt-6 text-gray-400 text-sm">
-            Step {stepIndex + 1} / {timeline.length}
-          </p>
         </div>
       ) : (
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">🎉 Workout Complete!</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            🎉 Workout Complete!
+          </h2>
           <p className="text-gray-400 mb-6">
             Session Length: {settings.sessionLength} min
           </p>
