@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { fetchWorkouts } from "../services/api";
-import { createPlan } from "../services/plans"; // <-- added
+import { createPlan } from "../services/plans";
 import WorkoutCard from "../components/WorkoutCard";
 import Loader from "../components/Loader";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import PreWorkoutSetup from "../components/PreWorkoutSetup";
 
 export default function WorkoutGenerator() {
+  const navigate = useNavigate();
+
   const [muscle, setMuscle] = useState("chest");
   const [difficulty, setDifficulty] = useState("beginner");
   const [exerciseType, setExerciseType] = useState("strength");
@@ -14,16 +18,26 @@ export default function WorkoutGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // new: saving + save message state
+  const [showSetup, setShowSetup] = useState(false);
+
+  // Save plan state
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
+  // -----------------------
+  // Load workouts
+  // -----------------------
   const loadWorkouts = async () => {
     setLoading(true);
     setError("");
     try {
-      // ✅ Ensure we pass all filter params to backend
-      const data = await fetchWorkouts({ muscle, difficulty, exerciseType, equipment });
+      const data = await fetchWorkouts({
+        muscle,
+        difficulty,
+        exerciseType,
+        equipment,
+      });
+
       if (data?.exercises?.length > 0) {
         setWorkouts(data.exercises);
       } else {
@@ -44,10 +58,10 @@ export default function WorkoutGenerator() {
   }, [muscle, difficulty, exerciseType, equipment]);
 
   // -----------------------
-  // Save plan handler
+  // Save plan
   // -----------------------
   const handleSavePlan = async () => {
-    if (!workouts || workouts.length === 0) {
+    if (!workouts.length) {
       setSaveMessage("No workouts to save.");
       setTimeout(() => setSaveMessage(""), 3000);
       return;
@@ -58,63 +72,46 @@ export default function WorkoutGenerator() {
 
     const todayLabel = new Date().toLocaleDateString();
 
-    const day = {
-      dateLabel: todayLabel,
-      exercises: workouts.map((w) => ({
-        name: w.name,
-        type: w.type,
-        muscle: w.muscle,
-        equipment: w.equipment,
-        difficulty: w.difficulty,
-        instructions: w.instructions,
-        sets: w.sets ?? undefined,
-        reps: w.reps ?? undefined,
-      })),
-      completed: false,
-      completedAt: null,
-    };
-
     const payload = {
-      title: `${muscle ? muscle.charAt(0).toUpperCase() + muscle.slice(1) : "Generated"} - ${todayLabel}`,
-      description: `Auto-saved plan generated from Workout Generator (target: ${muscle || "any"})`,
-      days: [day],
-      meta: {
-        goal: null,
-        difficulty: difficulty || null,
-        equipment: equipment ? [equipment] : [],
-      },
+      title: `${muscle ? muscle.charAt(0).toUpperCase() + muscle.slice(1) : "Workout"} - ${todayLabel}`,
+      description: `Generated workout plan`,
+      days: [
+        {
+          dateLabel: todayLabel,
+          exercises: workouts,
+          completed: false,
+          completedAt: null,
+        },
+      ],
     };
 
     try {
-      // createPlan should call POST /api/plans and return the created plan
-      const created = await createPlan(payload);
+      await createPlan(payload);
       setSaveMessage("Plan saved successfully.");
-      // optionally you could navigate to plan detail if you add navigation:
-      // navigate(`/plans/${created._id}`)
     } catch (err) {
-      console.error("Save plan failed", err);
-      setSaveMessage(err?.response?.data?.message || "Failed to save plan. Try again.");
+      setSaveMessage("Failed to save plan.");
     } finally {
       setSaving(false);
-      // auto-clear message after short time
       setTimeout(() => setSaveMessage(""), 3500);
     }
   };
 
+  // -----------------------
+  // Render
+  // -----------------------
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-blue-950 to-black text-white py-12 px-6">
-      <h1 className="text-5xl font-extrabold text-center mb-10 tracking-wide bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+      <h1 className="text-5xl font-extrabold text-center mb-10 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
         🏋️ AI-Powered Workout Generator
       </h1>
 
-      {/* Two Column Layout */}
       <div className="flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto">
-        {/* LEFT: Filter Card */}
+        {/* LEFT PANEL */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="lg:w-1/3 h-fit self-start bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700/60 rounded-2xl p-8 shadow-xl backdrop-blur-md"
+          className="lg:w-1/3 bg-gray-900/90 rounded-2xl p-8 shadow-xl"
         >
           <h2 className="text-2xl font-bold mb-6 text-blue-400 text-center">
             ⚙️ Workout Filters
@@ -122,168 +119,103 @@ export default function WorkoutGenerator() {
 
           <div className="flex flex-col gap-6">
             {/* Exercise Type */}
-            <div>
-              <label className="block mb-2 text-gray-300 font-semibold">
-                Exercise Type
-              </label>
-              <select
-                value={exerciseType}
-                onChange={(e) => setExerciseType(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-              >
-                <option value="">Any</option>
-                <option value="cardio">Cardio</option>
-                <option value="olympic_weightlifting">Olympic Weightlifting</option>
-                <option value="plyometrics">Plyometrics</option>
-                <option value="powerlifting">Powerlifting</option>
-                <option value="strength">Strength</option>
-                <option value="stretching">Stretching</option>
-                <option value="strongman">Strongman</option>
-              </select>
-            </div>
+            <select
+              value={exerciseType}
+              onChange={(e) => setExerciseType(e.target.value)}
+              className="p-3 bg-gray-800 rounded"
+            >
+              <option value="">Any Type</option>
+              <option value="strength">Strength</option>
+              <option value="cardio">Cardio</option>
+            </select>
 
-            {/* Target Muscle */}
-            <div>
-              <label className="block mb-2 text-gray-300 font-semibold">
-                Target Muscle
-              </label>
-              <select
-                value={muscle}
-                onChange={(e) => setMuscle(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
-              >
-                <option value="">Any</option>
-                <option value="abdominals">Abdominals</option>
-                <option value="abductors">Abductors</option>
-                <option value="adductors">Adductors</option>
-                <option value="biceps">Biceps</option>
-                <option value="calves">Calves</option>
-                <option value="chest">Chest</option>
-                <option value="forearms">Forearms</option>
-                <option value="glutes">Glutes</option>
-                <option value="hamstrings">Hamstrings</option>
-                <option value="lats">Lats</option>
-                <option value="lower_back">Lower Back</option>
-                <option value="middle_back">Middle Back</option>
-                <option value="neck">Neck</option>
-                <option value="quadriceps">Quadriceps</option>
-                <option value="shoulder">Shoulder</option>
-                <option value="traps">Traps</option>
-                <option value="triceps">Triceps</option>
-              </select>
-            </div>
+            {/* Muscle */}
+            <select
+              value={muscle}
+              onChange={(e) => setMuscle(e.target.value)}
+              className="p-3 bg-gray-800 rounded"
+            >
+              <option value="">Any Muscle</option>
+              <option value="chest">Chest</option>
+              <option value="biceps">Biceps</option>
+              <option value="triceps">Triceps</option>
+              <option value="shoulder">Shoulder</option>
+              <option value="legs">Legs</option>
+            </select>
 
             {/* Difficulty */}
-            <div>
-              <label className="block mb-2 text-gray-300 font-semibold">
-                Difficulty
-              </label>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
-              >
-                <option value="">Any</option>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="expert">Expert</option>
-              </select>
-            </div>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className="p-3 bg-gray-800 rounded"
+            >
+              <option value="">Any Difficulty</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="expert">Expert</option>
+            </select>
 
-            {/* Equipment */}
-            {/* <div>
-              <label className="block mb-2 text-gray-300 font-semibold">
-                Equipment
-              </label>
-              <select
-                value={equipment}
-                onChange={(e) => setEquipment(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-lg"
-              >
-                <option value="">Any</option>
-                <option value="body_only">Bodyweight</option>
-                <option value="dumbbell">Dumbbell</option>
-                <option value="barbell">Barbell</option>
-                <option value="e-z_curl_bar">EZ Curl Bar</option>
-                <option value="machine">Machine</option>
-                <option value="kettlebell">Kettlebell</option>
-                <option value="cable">Cable</option>
-                <option value="bands">Resistance Bands</option>
-                <option value="medicine_ball">Medicine Ball</option>
-                <option value="foam_roll">Foam Roller</option>
-                <option value="exercise_ball">Exercise Ball</option>
-                <option value="other">Other</option>
-              </select>
-            </div> */}
-
-            {/* Generate Button */}
+            {/* Buttons */}
             <button
               onClick={loadWorkouts}
-              className="mt-4 w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-lg"
+              className="py-3 bg-blue-600 rounded hover:bg-blue-700"
             >
               Generate New Plan 🔁
             </button>
 
-            {/* Save Plan Button (new) */}
             <button
               onClick={handleSavePlan}
-              disabled={saving || workouts.length === 0}
-              className={`mt-3 w-full py-3 rounded-lg text-lg font-semibold transition transform hover:scale-102 shadow-lg ${
-                workouts.length === 0
-                  ? "bg-gray-700 text-gray-300 cursor-not-allowed"
-                  : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
-              }`}
+              disabled={saving || !workouts.length}
+              className="py-3 bg-green-600 rounded hover:bg-green-700 disabled:bg-gray-600"
             >
               {saving ? "Saving..." : "Save Plan"}
             </button>
 
-            {/* Save message */}
+            <button
+              onClick={() => setShowSetup(true)}
+              disabled={!workouts.length}
+              className="py-3 bg-orange-600 rounded hover:bg-orange-700 disabled:bg-gray-600"
+            >
+              ▶ Start Workout
+            </button>
+
             {saveMessage && (
-              <div className="text-center mt-3 text-sm text-gray-200">
+              <p className="text-center text-sm text-gray-300">
                 {saveMessage}
-              </div>
+              </p>
             )}
           </div>
         </motion.div>
 
-        {/* RIGHT: Workout Results */}
+        {/* RIGHT PANEL */}
         <div className="lg:w-2/3 flex flex-col gap-6">
           {loading ? (
-            <div className="flex justify-center items-center h-full">
-              <Loader />
-            </div>
+            <Loader />
           ) : error ? (
-            <p className="text-center text-red-400 text-lg mt-10">{error}</p>
-          ) : workouts.length > 0 ? (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.15 } },
-              }}
-              className="flex flex-col gap-6"
-            >
-              {workouts.map((ex, idx) => (
-                <WorkoutCard
-                  key={`${ex.name}-${idx}`}
-                  index={idx}
-                  name={ex.name}
-                  type={ex.type}
-                  muscle={ex.muscle}
-                  equipment={ex.equipment}
-                  difficulty={ex.difficulty}
-                  instructions={ex.instructions}
-                />
-              ))}
-            </motion.div>
+            <p className="text-center text-red-400">{error}</p>
           ) : (
-            <p className="text-center text-gray-400 text-lg mt-10">
-              No workouts found. Try adjusting your filters.
-            </p>
+            workouts.map((ex, idx) => (
+              <WorkoutCard key={idx} {...ex} index={idx} />
+            ))
           )}
         </div>
       </div>
+
+      {/* PRE-WORKOUT SETUP MODAL */}
+      {showSetup && (
+        <PreWorkoutSetup
+          onClose={() => setShowSetup(false)}
+          onStart={(settings) => {
+            setShowSetup(false);
+            navigate("/workout-session", {
+              state: {
+                workouts,
+                settings,
+              },
+            });
+          }}
+        />
+      )}
     </div>
   );
 }
