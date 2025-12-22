@@ -1,3 +1,5 @@
+import { useState,useEffect } from "react";
+
 export function useTimer(initialTime, onComplete) {
   const [time, setTime] = useState(initialTime);
   const [running, setRunning] = useState(false);

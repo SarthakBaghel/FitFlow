@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyPlans from "./pages/MyPlans";
 import PlanDetail from "./pages/PlanDetail";
+import WorkoutSession from "./pages/WorkoutSession";
 
 
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/myplans" element={<MyPlans />} />
           <Route path="/plans/:id" element={<PlanDetail />} />
+          <Route path="/workout-session" element={<WorkoutSession />} />
         </Route>
 
 
