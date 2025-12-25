@@ -1,27 +1,54 @@
 import { Link } from "react-router-dom";
+import { SparklesCore } from "@/components/ui/sparkles";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-800 text-white px-6">
-      <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-center">
-        Welcome to <span className="text-blue-400">Workout Planner</span> 💥
-      </h1>
+    <div className="fixed inset-0 bg-black overflow-hidden">
+      {/* Background */}
+      <SparklesCore
+        background="transparent"
+        minSize={0.4}
+        maxSize={1}
+        particleDensity={100}
+        className="w-full h-full"
+        particleColor="#FFFFFF"
+      />
 
-      <p className="text-lg md:text-xl text-gray-200 mb-8 text-center max-w-xl">
-        Generate personalized daily or weekly workout plans powered by the{" "}
-        <span className="text-blue-400 font-semibold">Wger API</span>.
-      </p>
+      {/* Center Content */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white">
+        {/* Title with subtle glow */}
+        <h1
+          className="text-5xl md:text-6xl font-semibold tracking-tight mb-10
+                     drop-shadow-[0_0_25px_rgba(255,255,255,0.25)]"
+        >
+          FitFlow
+        </h1>
 
-      <Link
-        to="/workouts"
-        className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-lg font-semibold rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-      >
-        Start Generating 💪
-      </Link>
+        {/* Buttons */}
+        <div className="flex gap-5">
+          {/* Login */}
+          <Link
+            to="/login"
+            className="px-7 py-2.5 rounded-md bg-white text-black text-sm font-medium
+                       transition-all duration-300
+                       hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.35)]
+                       active:scale-95"
+          >
+            Login
+          </Link>
 
-      <p className="mt-10 text-sm text-gray-400">
-        Made with ❤️ by <span className="font-semibold text-gray-200">Sarthak Baghel</span>
-      </p>
+          {/* Register */}
+          <Link
+            to="/signup"
+            className="px-7 py-2.5 rounded-md border border-white/30 text-white text-sm font-medium
+                       transition-all duration-300
+                       hover:scale-105 hover:bg-white/10 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]
+                       active:scale-95"
+          >
+            Register
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

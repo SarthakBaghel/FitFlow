@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -12,14 +12,17 @@ import MyPlans from "./pages/MyPlans";
 import PlanDetail from "./pages/PlanDetail";
 import WorkoutSession from "./pages/WorkoutSession";
 
-
-
 function App() {
+  const location = useLocation();
+
+  // Hide navbar/footer on home page
+  const hideLayout = location.pathname === "/";
+
   return (
     <>
-      <Navbar />
+      {!hideLayout && <Navbar />}
 
-        <Routes>
+      <Routes>
         <Route path="/" element={<Home />} />
 
         {/* Protected routes */}
@@ -31,14 +34,13 @@ function App() {
           <Route path="/workout-session" element={<WorkoutSession />} />
         </Route>
 
-
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
 
         <Route path="*" element={<NotFound />} />
-        </Routes>
+      </Routes>
 
-      <Footer />
+      {!hideLayout && <Footer />}
     </>
   );
 }
