@@ -16,7 +16,8 @@ function App() {
   const location = useLocation();
 
   // Hide navbar/footer on home page
-  const hideLayout = location.pathname === "/";
+const hideLayout = ["/", "/login", "/signup"].includes(location.pathname);
+
 
   return (
     <>

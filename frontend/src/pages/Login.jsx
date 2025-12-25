@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { loginUser } from "../services/authService";
 import { useNavigate, useLocation } from "react-router-dom";
+import { SparklesCore } from "@/components/ui/sparkles";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,6 +10,19 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const glowRef = useRef(null);
+
+  // mouse reactive glow
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!glowRef.current) return;
+      glowRef.current.style.setProperty("--x", `${e.clientX}px`);
+      glowRef.current.style.setProperty("--y", `${e.clientY}px`);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   const onChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,88 +34,129 @@ export default function Login() {
 
     try {
       const data = await loginUser(form);
-
       if (data?.token) {
         localStorage.setItem("token", data.token);
-        setMsg({ type: "success", text: "Login successful!" });
-
-        setTimeout(() => navigate(from, { replace: true }), 800);
+        setTimeout(() => navigate(from, { replace: true }), 600);
       } else {
         setMsg({ type: "error", text: "Invalid login response." });
       }
     } catch (err) {
-      const text =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Login failed.";
-
-      setMsg({ type: "error", text });
+      setMsg({
+        type: "error",
+        text:
+          err?.response?.data?.message ||
+          err?.message ||
+          "Login failed.",
+      });
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-blue-950 to-black text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-gradient-to-br from-gray-900/80 to-gray-800/80 
-      border border-gray-700/60 rounded-2xl p-8 shadow-xl backdrop-blur-md">
+    <div
+      ref={glowRef}
+      className="fixed inset-0 bg-black overflow-hidden
+                 [--x:50%] [--y:50%]"
+    >
+      {/* Background */}
+      <SparklesCore
+        background="transparent"
+        minSize={0.4}
+        maxSize={1}
+        particleDensity={90}
+        className="w-full h-full"
+        particleColor="#FFFFFF"
+      />
 
-        <h2 className="text-3xl font-extrabold mb-4 text-center 
-        bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-          Welcome back
-        </h2>
+      {/* Cursor glow */}
+      <div
+        className="pointer-events-none absolute inset-0
+                   bg-[radial-gradient(600px_at_var(--x)_var(--y),rgba(255,255,255,0.08),transparent_40%)]"
+      />
 
-        {msg && (
-          <div
-            className={`mb-4 text-sm p-3 rounded ${
-              msg.type === "error" ? "bg-red-800 text-red-200" : "bg-green-900 text-green-200"
-            }`}
+      {/* Login Card */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center px-6">
+        <div
+          className="w-full max-w-sm rounded-2xl p-8
+                     bg-white/5 border border-white/10
+                     backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.6)]"
+        >
+          {/* Title */}
+          <h2
+            className="text-3xl font-semibold text-center mb-6
+                       text-transparent bg-clip-text
+                       bg-[linear-gradient(110deg,#ffffff,45%,#bfbfbf,55%,#ffffff)]
+                       bg-[length:200%_100%]
+                       animate-shimmer"
           >
-            {msg.text}
-          </div>
-        )}
+            Welcome Back!
+          </h2>
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <input
-            name="email"
-            value={form.email}
-            onChange={onChange}
-            placeholder="Email"
-            type="email"
-            required
-            className="px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-700
-            focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <input
-            name="password"
-            value={form.password}
-            onChange={onChange}
-            placeholder="Password"
-            type="password"
-            required
-            className="px-4 py-3 rounded-lg bg-gray-800 text-gray-100 border border-gray-700
-            focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          {msg && (
+            <div
+              className={`mb-4 text-sm px-4 py-2 rounded-md text-center
+                ${
+                  msg.type === "error"
+                    ? "bg-red-500/10 text-red-300"
+                    : "bg-green-500/10 text-green-300"
+                }`}
+            >
+              {msg.text}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg 
-            text-lg font-semibold hover:scale-105 transition shadow"
-          >
-            {loading ? "Signing in..." : "Log in"}
-          </button>
-        </form>
+          <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <input
+              name="email"
+              value={form.email}
+              onChange={onChange}
+              placeholder="Email"
+              type="email"
+              required
+              className="w-full px-4 py-3 rounded-md
+                         bg-black/40 border border-white/10
+                         text-white placeholder-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-white/20"
+            />
 
-        <p className="mt-4 text-sm text-gray-400 text-center">
-          New here?{" "}
-          <button
-            onClick={() => navigate("/signup")}
-            className="text-blue-300 underline hover:text-blue-100"
-          >
-            Create an account
-          </button>
-        </p>
+            <input
+              name="password"
+              value={form.password}
+              onChange={onChange}
+              placeholder="Password"
+              type="password"
+              required
+              className="w-full px-4 py-3 rounded-md
+                         bg-black/40 border border-white/10
+                         text-white placeholder-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-white/20"
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 py-3 rounded-md
+                         bg-white text-black text-sm font-medium
+                         transition-all duration-300
+                         hover:scale-[1.03]
+                         hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]
+                         active:scale-95"
+            >
+              {loading ? "Signing in..." : "Login"}
+            </button>
+          </form>
+
+          <p className="mt-5 text-sm text-gray-400 text-center">
+            New here?{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              className="text-white underline hover:opacity-80"
+            >
+              Create account
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
