@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { loginUser } from "../services/authService";
 import { useNavigate, useLocation } from "react-router-dom";
-import { SparklesCore } from "@/components/ui/sparkles";
+import SparklesBackground from "@/components/SparklesBackground";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/";
+  const from = location.state?.from || "/workouts";
   const [form, setForm] = useState({ email: "", password: "" });
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -59,15 +59,8 @@ export default function Login() {
       className="fixed inset-0 bg-black overflow-hidden
                  [--x:50%] [--y:50%]"
     >
-      {/* Background */}
-      <SparklesCore
-        background="transparent"
-        minSize={0.4}
-        maxSize={1}
-        particleDensity={90}
-        className="w-full h-full"
-        particleColor="#FFFFFF"
-      />
+      {/* Background (memoized, no re-render) */}
+      <SparklesBackground />
 
       {/* Cursor glow */}
       <div
