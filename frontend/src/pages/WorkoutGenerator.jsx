@@ -84,7 +84,7 @@ export default function WorkoutGenerator() {
       <SparklesBackground />
 
       {/* 🔹 Content */}
-      <div className="relative z-10 px-6 py-12 text-white">
+      <div className="relative z-10 px-6 pt-28 pb-12 text-white">
         <h1 className="text-4xl font-semibold text-center mb-12 tracking-tight">
           Generate Workout
         </h1>

@@ -8,10 +8,10 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setLoggedIn(!!localStorage.getItem("token"));
-    const onAuthChange = () => setLoggedIn(!!localStorage.getItem("token"));
-    window.addEventListener("authChange", onAuthChange);
-    return () => window.removeEventListener("authChange", onAuthChange);
+    const syncAuth = () => setLoggedIn(!!localStorage.getItem("token"));
+    syncAuth();
+    window.addEventListener("authChange", syncAuth);
+    return () => window.removeEventListener("authChange", syncAuth);
   }, []);
 
   const handleLogout = () => {
@@ -21,92 +21,120 @@ export default function Navbar() {
   };
 
   const navLinkClasses = ({ isActive }) =>
-    `hover:text-blue-400 transition ${
-      isActive ? "text-blue-400 font-semibold" : ""
+    `text-sm transition ${
+      isActive ? "text-white" : "text-gray-400 hover:text-gray-200"
     }`;
 
   return (
-    <nav className="bg-gray-900 text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+    <nav className="fixed top-0 inset-x-0 z-50
+                backdrop-blur-xl bg-black/40
+                border-b border-white/10">
 
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          🏋️ <span className="text-blue-400">Workout Planner</span>
+        <Link
+          to="/workouts"
+          className="text-lg font-medium tracking-tight text-white"
+        >
+          FitFlow
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6 text-lg items-center">
-
-          <NavLink to="/" className={navLinkClasses}>
-            Home
-          </NavLink>
-
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-6">
           <NavLink to="/workouts" className={navLinkClasses}>
-            Generate Plan
+            Generate
           </NavLink>
 
-          {/* Only show About if logged in */}
+          {loggedIn && (
+            <NavLink to="/myplans" className={navLinkClasses}>
+              My Plans
+            </NavLink>
+          )}
+
           {loggedIn && (
             <NavLink to="/about" className={navLinkClasses}>
               About
             </NavLink>
           )}
 
-          {/* Auth Buttons */}
           {!loggedIn ? (
             <>
               <NavLink to="/login" className={navLinkClasses}>
                 Login
               </NavLink>
-              <NavLink to="/signup" className={navLinkClasses}>
-                Signup
+              <NavLink
+                to="/signup"
+                className="px-3 py-1.5 rounded-md bg-white text-black text-sm hover:opacity-90 transition"
+              >
+                Sign up
               </NavLink>
             </>
           ) : (
             <button
               onClick={handleLogout}
-              className="px-4 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white transition"
+              className="text-sm text-gray-400 hover:text-red-400 transition"
             >
               Logout
             </button>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile menu button */}
         <button
-          className="md:hidden text-3xl"
           onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden text-gray-300"
         >
           ☰
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-gray-800 border-t border-gray-700 px-6 py-4 space-y-4 text-lg">
-
-          <NavLink to="/" className={navLinkClasses} onClick={() => setIsOpen(false)}>
-            Home
-          </NavLink>
-
-          <NavLink to="/workouts" className={navLinkClasses} onClick={() => setIsOpen(false)}>
-            Generate Plan
+        <div className="md:hidden px-6 pb-6 pt-2 space-y-4 border-t border-white/10 bg-black/80 backdrop-blur-xl">
+          <NavLink
+            to="/workouts"
+            className={navLinkClasses}
+            onClick={() => setIsOpen(false)}
+          >
+            Generate
           </NavLink>
 
           {loggedIn && (
-            <NavLink to="/about" className={navLinkClasses} onClick={() => setIsOpen(false)}>
+            <NavLink
+              to="/myplans"
+              className={navLinkClasses}
+              onClick={() => setIsOpen(false)}
+            >
+              My Plans
+            </NavLink>
+          )}
+
+          {loggedIn && (
+            <NavLink
+              to="/about"
+              className={navLinkClasses}
+              onClick={() => setIsOpen(false)}
+            >
               About
             </NavLink>
           )}
 
           {!loggedIn ? (
             <>
-              <NavLink to="/login" className={navLinkClasses} onClick={() => setIsOpen(false)}>
+              <NavLink
+                to="/login"
+                className={navLinkClasses}
+                onClick={() => setIsOpen(false)}
+              >
                 Login
               </NavLink>
 
-              <NavLink to="/signup" className={navLinkClasses} onClick={() => setIsOpen(false)}>
-                Signup
+              <NavLink
+                to="/signup"
+                onClick={() => setIsOpen(false)}
+                className="block text-center px-4 py-2 rounded-md bg-white text-black text-sm"
+              >
+                Sign up
               </NavLink>
             </>
           ) : (
@@ -115,7 +143,7 @@ export default function Navbar() {
                 handleLogout();
                 setIsOpen(false);
               }}
-              className="w-full text-left px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 transition"
+              className="text-left text-sm text-red-400"
             >
               Logout
             </button>
