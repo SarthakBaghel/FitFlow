@@ -13,7 +13,7 @@ export default function Login() {
 
   const glowRef = useRef(null);
 
-  // mouse reactive glow
+
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!glowRef.current) return;

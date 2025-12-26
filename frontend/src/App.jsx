@@ -40,8 +40,6 @@ const hideLayout = ["/", "/login", "/signup"].includes(location.pathname);
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-
-      {!hideLayout && <Footer />}
     </>
   );
 }
