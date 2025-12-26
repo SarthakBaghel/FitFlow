@@ -1,7 +1,6 @@
-// src/pages/About.jsx
 import { useEffect, useState } from "react";
 import { fetchCurrentUser } from "../services/authService";
-import { Link } from "react-router-dom";
+import SparklesBackground from "@/components/SparklesBackground";
 
 export default function About() {
   const [user, setUser] = useState(null);
@@ -11,7 +10,7 @@ export default function About() {
     async function loadUser() {
       try {
         const data = await fetchCurrentUser();
-        setUser(data.user || data); // backend may use { user: {...} }
+        setUser(data.user || data);
       } catch (err) {
         console.error("Failed to fetch user info:", err);
       } finally {
@@ -22,75 +21,63 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-blue-950 to-black text-white py-16 px-6">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-5xl font-extrabold text-center mb-10 tracking-wide 
-        bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-          About You
-        </h1>
+    <div className="relative min-h-screen bg-black overflow-hidden">
+      {/* Background */}
+      <SparklesBackground />
 
-        {loading && (
-          <p className="text-center text-gray-300 text-xl">Loading profile...</p>
-        )}
+      {/* Content */}
+      <div className="relative z-10 px-6 pt-28 pb-16 text-white">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-3xl font-semibold text-center mb-10 tracking-tight">
+            Account
+          </h1>
 
-        {!loading && user && (
-          <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90
-              border border-gray-700/60 rounded-2xl p-10 shadow-xl backdrop-blur-md">
+          {loading && (
+            <p className="text-center text-gray-400">
+              Loading profile…
+            </p>
+          )}
 
-            <div className="flex flex-col items-center text-center">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 
-                flex items-center justify-center text-4xl font-bold mb-6 shadow-lg">
-                {user.name?.charAt(0).toUpperCase()}
+          {!loading && user && (
+            <div
+              className="rounded-2xl bg-white/5 border border-white/10
+                         backdrop-blur-xl p-8 text-center space-y-4"
+            >
+              {/* Avatar */}
+              <div
+                className="mx-auto w-20 h-20 rounded-full
+                           bg-white/10 flex items-center justify-center
+                           text-2xl font-medium"
+              >
+                {user.name?.charAt(0)?.toUpperCase()}
               </div>
 
-              <h2 className="text-3xl font-bold text-blue-300">{user.name}</h2>
-              <p className="text-gray-300 text-lg mt-1">{user.email}</p>
+              {/* Name */}
+              <h2 className="text-xl font-medium">
+                {user.name}
+              </h2>
 
+              {/* Email */}
+              <p className="text-sm text-gray-400">
+                {user.email}
+              </p>
+
+              {/* Joined */}
               {user.createdAt && (
-                <p className="text-gray-400 text-sm mt-2">
-                  Joined on{" "}
-                  <span className="text-gray-200">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </span>
+                <p className="text-xs text-gray-500 pt-2">
+                  Joined{" "}
+                  {new Date(user.createdAt).toLocaleDateString()}
                 </p>
               )}
-
-              <div className="w-full h-px bg-gray-700/60 my-8"></div>
-
-              <div className="space-y-4 text-left w-full px-4">
-                <p className="text-gray-300 text-lg">👋 Welcome to your personalized fitness companion!</p>
-
-                <p className="text-gray-400">
-                  This page gives you a quick overview of your account details.
-                </p>
-
-                <ul className="text-gray-300 mt-2 space-y-1 list-disc ml-4">
-                  <li>Your generated workouts</li>
-                  <li>Your weekly fitness progress</li>
-                  <li>Favorites & saved routines</li>
-                  <li>Achievement badges & streaks</li>
-                </ul>
-
-                {/* NEW: View My Plans button */}
-                <div className="mt-6 flex justify-center">
-                  <Link
-                    to="/myplans"
-                    className="inline-block px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow"
-                  >
-                    View My Plans
-                  </Link>
-                </div>
-              </div>
             </div>
+          )}
 
-          </div>
-        )}
-
-        {!loading && !user && (
-          <p className="text-center text-red-400 text-xl mt-10">
-            Unable to load your profile. Please log in again.
-          </p>
-        )}
+          {!loading && !user && (
+            <p className="text-center text-red-400 mt-10">
+              Unable to load profile. Please log in again.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
