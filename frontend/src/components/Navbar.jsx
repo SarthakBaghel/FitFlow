@@ -17,7 +17,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logoutUser();
     setLoggedIn(false);
-    navigate("/login");
+    navigate("/");
   };
 
   const navLinkClasses = ({ isActive }) =>
