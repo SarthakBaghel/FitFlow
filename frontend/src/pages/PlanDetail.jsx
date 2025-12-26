@@ -90,14 +90,42 @@ export default function PlanDetail() {
           </button>
 
           {/* Header */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {plan.title}
-            </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              {dateLabel}
-            </p>
+          <div className="mb-10 flex items-start justify-between gap-4">
+            {/* Title + date */}
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight">
+                {plan.title}
+              </h1>
+              <p className="text-sm text-gray-400 mt-1">
+                {dateLabel}
+              </p>
+            </div>
+
+            {/* Start workout */}
+            <button
+              onClick={() =>
+                navigate("/workout-session", {
+                  state: {
+                    workouts: exercises,
+                    settings: {
+                      sessionLength: 30,
+                      reps: 12,
+                      rest: 45,
+                    },
+                  },
+                })
+              }
+              className="
+                px-5 py-2 rounded-md
+                bg-green-500/90 text-black text-sm font-medium
+                hover:bg-green-500 transition
+                shrink-0
+              "
+            >
+              Start workout
+            </button>
           </div>
+
 
           {/* Card */}
           <div
@@ -158,12 +186,14 @@ export default function PlanDetail() {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-between items-center mt-10">
+          <div className="mt-10 flex items-center justify-between">
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="text-sm text-red-400 hover:text-red-300
-                         transition disabled:opacity-40"
+              className="
+                text-sm text-red-400 hover:text-red-300
+                transition disabled:opacity-40
+              "
             >
               {deleting ? "Deleting…" : "Delete plan"}
             </button>
@@ -175,6 +205,7 @@ export default function PlanDetail() {
               View all plans
             </button>
           </div>
+
         </div>
       </div>
     </div>

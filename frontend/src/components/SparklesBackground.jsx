@@ -8,7 +8,7 @@ const SparklesBackground = memo(function SparklesBackground() {
         background="transparent"
         minSize={0.4}
         maxSize={1}
-        particleDensity={90}
+        particleDensity={5}
         className="absolute inset-0 w-full h-full"
         particleColor="#FFFFFF"
       />

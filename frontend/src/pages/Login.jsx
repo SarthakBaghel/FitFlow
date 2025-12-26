@@ -6,7 +6,7 @@ import SparklesBackground from "@/components/SparklesBackground";
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/workouts";
+  const from = location.state?.from || "/myplans";
   const [form, setForm] = useState({ email: "", password: "" });
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);

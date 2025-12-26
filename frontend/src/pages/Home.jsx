@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SparklesCore } from "@/components/ui/sparkles";
+import SparklesBackground from "@/components/SparklesBackground";
 import { useEffect, useRef } from "react";
 
 export default function Home() {
@@ -24,14 +24,7 @@ export default function Home() {
                  [--x:50%] [--y:50%]"
     >
       {/* Background */}
-      <SparklesCore
-        background="transparent"
-        minSize={0.4}
-        maxSize={1}
-        particleDensity={100}
-        className="w-full h-full"
-        particleColor="#FFFFFF"
-      />
+      <SparklesBackground />
 
       {/* Reactive glow */}
       <div
