@@ -1,62 +1,133 @@
 import { useState } from "react";
 
+const PRESETS = {
+  quick: { sessionLength: 20, reps: 10, rest: 30 },
+  standard: { sessionLength: 30, reps: 12, rest: 45 },
+  long: { sessionLength: 45, reps: 15, rest: 60 },
+};
+
 export default function PreWorkoutSetup({ onClose, onStart }) {
   const [sessionLength, setSessionLength] = useState(30);
   const [reps, setReps] = useState(12);
   const [rest, setRest] = useState(45);
+  const [activePreset, setActivePreset] = useState("standard");
+
+  const applyPreset = (key) => {
+    const preset = PRESETS[key];
+    setSessionLength(preset.sessionLength);
+    setReps(preset.reps);
+    setRest(preset.rest);
+    setActivePreset(key);
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md text-white">
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          ⚙️ Workout Settings
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div
+        className="w-full max-w-sm rounded-2xl
+                   bg-white/5 border border-white/10
+                   backdrop-blur-xl shadow-2xl
+                   p-6 text-white"
+      >
+        {/* Title */}
+        <h2 className="text-lg font-semibold text-center mb-5 tracking-tight">
+          Workout settings
         </h2>
 
-        {/* Session Length */}
-        <label className="block mb-1 text-gray-300">Session Length (minutes)</label>
-        <select
-          value={sessionLength}
-          onChange={(e) => setSessionLength(+e.target.value)}
-          className="w-full p-2 rounded bg-gray-800 mb-3"
-        >
-          <option value={20}>20</option>
-          <option value={30}>30</option>
-          <option value={45}>45</option>
-        </select>
+        {/* Presets */}
+        <div className="flex gap-2 mb-6">
+          {Object.keys(PRESETS).map((key) => (
+            <button
+              key={key}
+              onClick={() => applyPreset(key)}
+              className={`flex-1 py-2 rounded-md text-xs font-medium capitalize
+                transition border
+                ${
+                  activePreset === key
+                    ? "bg-white text-black border-white"
+                    : "bg-transparent text-gray-300 border-white/15 hover:bg-white/5"
+                }`}
+            >
+              {key}
+            </button>
+          ))}
+        </div>
 
-        {/* Reps */}
-        <label className="block mb-1 text-gray-300">Reps per Exercise</label>
-        <input
-          type="number"
-          value={reps}
-          onChange={(e) => setReps(+e.target.value)}
-          className="w-full p-2 rounded bg-gray-800 mb-3"
-        />
+        {/* Controls */}
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">
+              Session length (minutes)
+            </label>
+            <select
+              value={sessionLength}
+              onChange={(e) => {
+                setSessionLength(+e.target.value);
+                setActivePreset(null);
+              }}
+              className="w-full px-3 py-2 rounded-md
+                         bg-black/40 border border-white/10
+                         text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+            >
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+              <option value={45}>45</option>
+            </select>
+          </div>
 
-        {/* Rest */}
-        <label className="block mb-1 text-gray-300">Rest Between Exercises (sec)</label>
-        <input
-          type="number"
-          value={rest}
-          onChange={(e) => setRest(+e.target.value)}
-          className="w-full p-2 rounded bg-gray-800 mb-6"
-        />
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">
+              Reps per exercise
+            </label>
+            <input
+              type="number"
+              value={reps}
+              onChange={(e) => {
+                setReps(+e.target.value);
+                setActivePreset(null);
+              }}
+              className="w-full px-3 py-2 rounded-md
+                         bg-black/40 border border-white/10
+                         text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
 
-        <div className="flex gap-3">
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">
+              Rest between exercises (sec)
+            </label>
+            <input
+              type="number"
+              value={rest}
+              onChange={(e) => {
+                setRest(+e.target.value);
+                setActivePreset(null);
+              }}
+              className="w-full px-3 py-2 rounded-md
+                         bg-black/40 border border-white/10
+                         text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-6 flex gap-3">
           <button
             onClick={onClose}
-            className="w-1/2 py-2 rounded bg-gray-700 hover:bg-gray-600"
+            className="flex-1 py-2 rounded-md
+                       text-sm text-gray-300
+                       border border-white/10
+                       hover:bg-white/5 transition"
           >
             Cancel
           </button>
 
           <button
-            onClick={() =>
-              onStart({ sessionLength, reps, rest })
-            }
-            className="w-1/2 py-2 rounded bg-green-600 hover:bg-green-700"
+            onClick={() => onStart({ sessionLength, reps, rest })}
+            className="flex-1 py-2 rounded-md
+                       bg-white text-black text-sm font-medium
+                       hover:opacity-90 transition"
           >
-            Start Workout
+            Start workout
           </button>
         </div>
       </div>
