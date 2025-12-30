@@ -120,11 +120,25 @@ export default function WorkoutGenerator() {
               className="w-full px-4 py-3 rounded-md bg-black/40 border border-white/10"
             >
               <option value="">Any muscle</option>
-              <option value="chest">Chest</option>
-              <option value="biceps">Biceps</option>
-              <option value="triceps">Triceps</option>
-              <option value="shoulder">Shoulder</option>
-              <option value="quadriceps">Quadriceps</option>
+              <optgroup label="Upper Body">
+                <option value="biceps">Biceps</option>
+                <option value="chest">Chest</option>
+                <option value="forearms">Forearms</option>
+                <option value="lats">Lats</option>
+                <option value="middle_back">Middle back</option>
+                <option value="traps">Traps</option>
+                <option value="triceps">Triceps</option>
+              </optgroup>
+              <optgroup label="Lower Body">
+                <option value="glutes">Glutes</option>
+                <option value="hamstrings">Hamstrings</option>
+                <option value="quadriceps">Quadriceps</option>
+                <option value="calves">Calves</option>
+              </optgroup>
+              <optgroup label="Core">
+                <option value="abdominals">Abdominals</option>
+                <option value="lower_back">Lower back</option>
+              </optgroup>
             </select>
 
             <select
