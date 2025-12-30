@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     const difficulty = req.query.difficulty?.toLowerCase() || "";
     const exerciseType = req.query.type?.toLowerCase() || ""; // exercise type (e.g. strength, cardio)
     const name = req.query.name?.toLowerCase() || ""; // search by name substring
-    // const equipment = req.query.equipment?.toLowerCase() || "";
+    const equipment = req.query.equipment?.toLowerCase() || "";
     const limit = parseInt(req.query.limit) || 10;
 
     // 🔧 Build dynamic URL
@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
     if (difficulty) params.append("difficulty", difficulty);
     if (exerciseType) params.append("type", exerciseType);
     if (name) params.append("name", name);
-    // if (equipment) params.append("equipment", equipment);
+    if (equipment) params.append("equipment", equipment);
 
     const apiUrl = `https://api.api-ninjas.com/v1/exercises?${params.toString()}`;
     console.log(`🔍 Fetching: ${apiUrl}`);
@@ -52,10 +52,10 @@ router.get("/", async (req, res) => {
 
     // 🧠 Apply local fallback filtering
     let filtered = Array.isArray(data) ? data : [];
-    // if (equipment)
-    //   filtered = filtered.filter(
-    //     (ex) => ex.equipment?.toLowerCase() === equipment
-    //   );
+    if (equipment)
+      filtered = filtered.filter(
+        (ex) => ex.equipment?.toLowerCase() === equipment
+      );
 
     // 🌀 Shuffle and limit
     const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, limit);

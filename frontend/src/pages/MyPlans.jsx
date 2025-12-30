@@ -4,6 +4,7 @@ import { listPlans, deletePlan } from "../services/plans";
 import { Link, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import PlanCard from "../components/PlanCard";
+import PreWorkoutSetup from "../components/PreWorkoutSetup";
 import SparklesBackground from "@/components/SparklesBackground";
 
 export default function MyPlans() {
@@ -13,8 +14,15 @@ export default function MyPlans() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [showSetup, setShowSetup] = useState(false);
+  const [setupWorkouts, setSetupWorkouts] = useState([]);
 
   const navigate = useNavigate();
+
+  const handleStartFromPlan = (workouts) => {
+    setSetupWorkouts(workouts || []);
+    setShowSetup(true);
+  };
 
   const loadPlans = async (pageNum = 1) => {
     setLoading(true);
@@ -111,6 +119,7 @@ export default function MyPlans() {
                   plan={plan}
                   deleting={deletingId === plan._id}
                   onDelete={handleDelete}
+                  onStart={handleStartFromPlan}
                 />
               ))}
             </div>
@@ -144,6 +153,18 @@ export default function MyPlans() {
           )}
         </div>
       </div>
+
+      {showSetup && (
+        <PreWorkoutSetup
+          onClose={() => setShowSetup(false)}
+          onStart={(settings) => {
+            setShowSetup(false);
+            navigate("/workout-session", {
+              state: { workouts: setupWorkouts, settings },
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

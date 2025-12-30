@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function PlanCard({ plan, onDelete, deleting }) {
+export default function PlanCard({ plan, onDelete, deleting, onStart }) {
   const day = plan?.days?.[0] || {};
   const exercises = day?.exercises || [];
 
@@ -43,24 +43,39 @@ export default function PlanCard({ plan, onDelete, deleting }) {
       {/* Right */}
       <div className="flex items-center gap-2">
         {/* Start Workout */}
-        <Link
-          to="/workout-session"
-          state={{
-            workouts: exercises,
-            settings: {
-              sessionLength: 30,
-              reps: 12,
-              rest: 45,
-            },
-          }}
-          className="
-            text-xs px-3 py-1.5 rounded-md
-            bg-green-500/90 text-black
-            hover:bg-green-500 transition
-          "
-        >
-          Start
-        </Link>
+        {typeof onStart === "function" ? (
+          <button
+            onClick={() => onStart(exercises)}
+            disabled={exercises.length === 0}
+            title={exercises.length === 0 ? "No exercises" : "Start workout"}
+            className="
+              text-xs px-3 py-1.5 rounded-md
+              bg-green-500/90 text-black
+              hover:bg-green-500 transition disabled:opacity-40
+            "
+          >
+            Start
+          </button>
+        ) : (
+          <Link
+            to="/workout-session"
+            state={{
+              workouts: exercises,
+              settings: {
+                sessionLength: 30,
+                reps: 12,
+                rest: 45,
+              },
+            }}
+            className="
+              text-xs px-3 py-1.5 rounded-md
+              bg-green-500/90 text-black
+              hover:bg-green-500 transition
+            "
+          >
+            Start
+          </Link>
+        )}
 
         {/* View */}
         <Link
