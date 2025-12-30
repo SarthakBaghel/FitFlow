@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { registerUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
-import { SparklesCore } from "@/components/ui/sparkles";
+import SparklesBackground from "@/components/SparklesBackground";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -56,15 +56,8 @@ export default function Signup() {
       className="fixed inset-0 bg-black overflow-hidden
                  [--x:50%] [--y:50%]"
     >
-      {/* Background */}
-      <SparklesCore
-        background="transparent"
-        minSize={0.4}
-        maxSize={1}
-        particleDensity={90}
-        className="w-full h-full"
-        particleColor="#FFFFFF"
-      />
+      {/* Background (memoized, no re-render) */}
+      <SparklesBackground />
 
       {/* Cursor glow */}
       <div
